@@ -2,12 +2,6 @@ function createGithubBranchRule {
     local repoName="$1"
     local branch="$2"
 
-    case $branch in
-        */\*) matchKind=Prefix; branch=$(echo $branch | tr -d '/*') ;;
-        *\**) echo "ERROR: Unsupported branch policy scope: '$branch'"; exit 1 ;;
-        *) matchKind=exact ;;
-    esac
-
     requiresApprovingReviews=true
     dismissesStaleReviews=true
     requiredApprovingReviewCount=1
@@ -58,7 +52,6 @@ function createGithubBranchRule {
 }
 
 GITHUB_ORG="automagicallyorg"
-excludeRepo="gh-repo-config-azfunction"
 policy_branch="main"
 
 orgRepos=$(gh repo list ${GITHUB_ORG} --json name --jq ".[] | select(.name!=\"gh-repo-config-azfunction\") | select(.name!=\".github\") | .name")
