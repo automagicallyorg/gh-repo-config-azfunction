@@ -19,6 +19,9 @@ Write-Host "Protected branch name:" $Request.rule.name
 
 # Header for GitHub API
 $ghToken = $env:ghToken
+Write-Host "ghToken:" $ghToken
+Write-Host "ghToken decoded:" [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($ghToken))
+
 # $headers = @{
 #     "Accept" = "application/vnd.github+json"; "Authorization" = "Basic $ghToken"; "X-GitHub-Api-Version" = "2022-11-28"; "Content-Type" = "application/json"
 # }
@@ -32,7 +35,7 @@ $ghRepoName = $Request.repository.name
 
 function ConfigureBranchProtection {
     $bodyConfigureProtection = "{
-    `n    `"required_status_checks`": {},
+    `n    `"required_status_checks`": null,
     `n    `"enforce_admins`": true,
     `n    `"required_conversation_resolution`": true,
     `n    `"required_linear_history`": true,
@@ -43,7 +46,7 @@ function ConfigureBranchProtection {
     `n        `"require_last_push_approval`": true,
     `n        `"required_approving_review_count`": 1
     `n    },
-    `n    `"restrictions`": {}
+    `n    `"restrictions`": null
     `n}"
     
     $response = Invoke-RestMethod "https://api.github.com/repos/$orgName/$ghRepoName/branches/$protectedBranch/protection" -Method 'PUT' -Headers $headers -Body $bodyConfigureProtection
@@ -88,10 +91,10 @@ if(  ( ($action -eq "edited") -or ($action -eq "deleted") ) -and ($branch -eq $p
     catch {
         Write-Host "EXCEPTION OCCURRED!"
         Write-Host $_.Exception.Message
-        # Write-Host "JSON RESPONSE:"
-        # Write-Host ($_ | ConvertTo-Json)
-        # Write-Host "STRING RESPONSE:"
-        # $_ | Format-List * -Force | Out-String
+        Write-Host "JSON RESPONSE:"
+        Write-Host ($_ | ConvertTo-Json)
+        Write-Host "STRING RESPONSE:"
+        $_ | Format-List * -Force | Out-String
     }
 }
 
