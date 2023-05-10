@@ -82,7 +82,12 @@ if(  ( ($action -eq "edited") -or ($action -eq "deleted") ) -and ($branch -eq $p
         ConfigureBranchProtection
     }
     catch {
-        Write-Host "Check if main branch exists"
+        Write-Host "EXCEPTION OCCURRED!"
+        Write-Host $_.Exception.Message
+        Write-Host "JSON RESPONSE:"
+        Write-Host ($_ | ConvertTo-Json)
+        Write-Host "STRING RESPONSE:"
+        $_ | Format-List * -Force | Out-String
     }
 }
 
