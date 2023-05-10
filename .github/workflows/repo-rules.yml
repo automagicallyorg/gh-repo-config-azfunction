@@ -20,45 +20,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
-    # - name: Log in with Azure
-    #   uses: azure/login@v1
-    #   with:
-    #     creds: '${{ secrets.AZURE_CREDENTIALS }}'
-    #     enable-AzPSSession: true
-
-    - name: 'Az CLI login'
-      uses: azure/login@v1
-      with:
-        client-id: "c76c3edf-4ba5-4918-85fd-caf463094802" # ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: "62e58f3b-cc53-468e-9e7b-7c9198dfd273" # ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: "bc39c48b-c7bb-4f75-9a3b-b5f4bf99718b" # ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-    - name: 'Run az commands'
-      run: |
-        az account show
-        az group list
-        pwd 
-
-    - name: 'Fetching Azure Functions Publishing Profile'
-      id: publishprofile
-      uses: azure/powershell@v1
-      with:
-        inlineScript: |
-            $profile = ""
-            # $profile = Get-AzWebAppPublishingProfile -ResourceGroupName $env:RESOURCE_GROUP -Name $env:FUNCTION_NAME
-            $profile = az webapp deployment list-publishing-profiles --name $env:FUNCTION_NAME --resource-group  $env:RESOURCE_GROUP --subscription "bc39c48b-c7bb-4f75-9a3b-b5f4bf99718b"
-            write-host "profile before: $profile"
-            $profile = $profile.Replace("`r", "").Replace("`n", "")
-            write-host "profile after: $profile"
-            Write-Output "::set-output name=pubprofile::$profile"
-            Remove-Variable profile
-        azPSVersion: "latest"
+    - uses: actions/checkout@v3
 
     - name: Deploy Azure Function
       uses: Azure/functions-action@v1.1.8
       with:
         app-name: ${{ env.FUNCTION_NAME }}
         package: ${{ env.SCRIPT_PATH }}
-        publish-profile: ${{ steps.publishprofile.outputs.pubprofile }}
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
