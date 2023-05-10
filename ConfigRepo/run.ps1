@@ -25,7 +25,7 @@ Write-Host "ghToken decoded:" $ghTokenDecoded
 
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Accept", "application/vnd.github+json")
-$headers.Add("Authorization", "Basic $ghToken")
+$headers.Add("Authorization", "Bearer $ghToken")
 $headers.Add("X-GitHub-Api-Version", "2022-11-28")
 $headers.Add("Content-Type", "application/json")
 
