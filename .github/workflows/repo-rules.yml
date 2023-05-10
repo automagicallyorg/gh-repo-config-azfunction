@@ -6,6 +6,10 @@ on:
  
   workflow_dispatch:
  
+permissions:
+  id-token: write
+  contents: read
+
 env:
   FUNCTION_NAME: github-repo-rules
   SCRIPT_PATH: '.'
@@ -18,11 +22,24 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Log in with Azure
+    # - name: Log in with Azure
+    #   uses: azure/login@v1
+    #   with:
+    #     creds: '${{ secrets.AZURE_CREDENTIALS }}'
+    #     enable-AzPSSession: true
+
+    - name: 'Az CLI login'
       uses: azure/login@v1
       with:
-        creds: '${{ secrets.AZURE_CREDENTIALS }}'
-        enable-AzPSSession: true
+        client-id: "c76c3edf-4ba5-4918-85fd-caf463094802" # ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: "62e58f3b-cc53-468e-9e7b-7c9198dfd273" # ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: "bc39c48b-c7bb-4f75-9a3b-b5f4bf99718b" # ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: 'Run az commands'
+      run: |
+        az account show
+        az group list
+        pwd 
 
     - name: 'Fetching Azure Functions Publishing Profile'
       id: publishprofile
