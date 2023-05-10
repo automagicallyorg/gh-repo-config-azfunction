@@ -19,12 +19,10 @@ Write-Host "Protected branch name:" $Request.rule.name
 
 # Header for GitHub API
 $ghToken = $env:ghToken
+$ghTokenDecoded =  [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String( $env:ghToken))
 Write-Host "ghToken:" $ghToken
-Write-Host "ghToken decoded:" [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($ghToken))
+Write-Host "ghToken decoded:" $ghTokenDecoded
 
-# $headers = @{
-#     "Accept" = "application/vnd.github+json"; "Authorization" = "Basic $ghToken"; "X-GitHub-Api-Version" = "2022-11-28"; "Content-Type" = "application/json"
-# }
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Accept", "application/vnd.github+json")
 $headers.Add("Authorization", "Basic $ghToken")
