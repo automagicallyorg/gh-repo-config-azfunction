@@ -19,41 +19,36 @@ Write-Host "Protected branch name:" $Request.rule.name
 
 # Header for GitHub API
 $ghToken = $env:ghToken
+# $headers = @{
+#     "Accept" = "application/vnd.github+json"; "Authorization" = "Basic $ghToken"; "X-GitHub-Api-Version" = "2022-11-28"; "Content-Type" = "application/json"
+# }
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Accept", "application/vnd.github+json")
 $headers.Add("Authorization", "Basic $ghToken")
 $headers.Add("X-GitHub-Api-Version", "2022-11-28")
+$headers.Add("Content-Type", "application/json")
 
 $ghRepoName = $Request.repository.name
 
 function ConfigureBranchProtection {
-    $bodyConfigureProtection = `"{"required_status_checks": {},"enforce_admins": true,"required_pull_request_reviews": {"dismiss_stale_reviews": true,"require_code_owner_reviews": true,"required_approving_review_count": 1,"require_last_push_approval": true},"restrictions": {},"required_linear_history": true,"allow_force_pushes": true,"allow_deletions": true,"block_creations": true,"required_conversation_resolution": true,"lock_branch": true,"allow_fork_syncing": true}`"
-    # $bodyConfigureProtection = "{
-    # `n    `"required_status_checks`": {},
-    # `n    `"enforce_admins`": true,
-    # `n    `"required_conversation_resolution`": true,
-    # `n    `"required_linear_history`": true,
-    # `n    `"required_pull_request_reviews`": {
-    # `n        `"dismissal_restrictions`": {},
-    # `n        `"dismiss_stale_reviews`": true,
-    # `n        `"require_code_owner_reviews`": true,
-    # `n        `"require_last_push_approval`": true,
-    # `n        `"required_approving_review_count`": 1
-    # `n    },
-    # `n    `"restrictions`": {}
-    # `n}"
+    $bodyConfigureProtection = "{
+    `n    `"required_status_checks`": {},
+    `n    `"enforce_admins`": true,
+    `n    `"required_conversation_resolution`": true,
+    `n    `"required_linear_history`": true,
+    `n    `"required_pull_request_reviews`": {
+    `n        `"dismissal_restrictions`": {},
+    `n        `"dismiss_stale_reviews`": true,
+    `n        `"require_code_owner_reviews`": true,
+    `n        `"require_last_push_approval`": true,
+    `n        `"required_approving_review_count`": 1
+    `n    },
+    `n    `"restrictions`": {}
+    `n}"
     
     $response = Invoke-RestMethod "https://api.github.com/repos/$orgName/$ghRepoName/branches/$protectedBranch/protection" -Method 'PUT' -Headers $headers -Body $bodyConfigureProtection
     $response | ConvertTo-Json
 }
-
-# curl -L \
-#   -X PUT \
-#   -H "Accept: application/vnd.github+json" \
-#   -H "Authorization: Bearer <YOUR-TOKEN>"\
-#   -H "X-GitHub-Api-Version: 2022-11-28" \
-#   https://api.github.com/repos/OWNER/REPO/branches/BRANCH/protection \
-#   -d '{"required_status_checks":{"strict":true,"contexts":["continuous-integration/travis-ci"]},"enforce_admins":true,"required_pull_request_reviews":{"dismissal_restrictions":{"users":["octocat"],"teams":["justice-league"]},"dismiss_stale_reviews":true,"require_code_owner_reviews":true,"required_approving_review_count":2,"require_last_push_approval":true,"bypass_pull_request_allowances":{"users":["octocat"],"teams":["justice-league"]}},"restrictions":{"users":["octocat"],"teams":["justice-league"],"apps":["super-ci"]},"required_linear_history":true,"allow_force_pushes":true,"allow_deletions":true,"block_creations":true,"required_conversation_resolution":true,"lock_branch":true,"allow_fork_syncing":true}'
 
 function AddReadMe {
     $bodyReadMe = "{
