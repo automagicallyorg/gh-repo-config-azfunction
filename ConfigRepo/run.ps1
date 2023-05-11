@@ -19,10 +19,6 @@ Write-Host "Protected branch name:" $Request.rule.name
 
 # Header for GitHub API
 $ghToken = $env:ghToken
-# $ghTokenDecoded =  [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String( $env:ghToken))
-Write-Host "ghToken:" $ghToken
-# Write-Host "ghToken decoded:" $ghTokenDecoded
-
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("Accept", "application/vnd.github+json")
 $headers.Add("Authorization", "Bearer $ghToken")
@@ -51,17 +47,6 @@ function ConfigureBranchProtection {
     $response | ConvertTo-Json
 }
 
-function AddReadMe {
-    $bodyReadMe = "{
-    `n  `"branch`": `"main`",
-    `n  `"message`": `"add README`",
-    `n  `"content`": `"QWRkIHNvbWUgbWVhbmluZ2Z1bCBkZXNjcmlwdGlvbiBwbGVhc2UuIEl0IHdpbGwgaGVscCB5b3UgbGF0ZXIu`"
-    `n}"
-
-    $response = Invoke-RestMethod "https://api.github.com/repos/$orgName/$ghRepoName/contents/README.md" -Method 'PUT' -Headers $headers -Body $bodyReadMe
-    $response | ConvertTo-Json
-}
-
 # configure branch protection rules when repo created
 if ($action -eq "created")
 {
@@ -70,9 +55,8 @@ if ($action -eq "created")
         ConfigureBranchProtection
     }
     catch {
-        Write-Host "No branches exist, creating init commit to initialize branch."
-        AddReadMe
-        ConfigureBranchProtection
+        Write-Host "EXCEPTION OCCURRED!"
+        Write-Host $_.Exception.Message
     }
     finally {
         Write-Host "Branch protection configured"
@@ -89,9 +73,8 @@ if(  ( ($action -eq "edited") -or ($action -eq "deleted") ) -and ($branch -eq $p
     catch {
         Write-Host "EXCEPTION OCCURRED!"
         Write-Host $_.Exception.Message
-        Write-Host "JSON RESPONSE:"
-        Write-Host ($_ | ConvertTo-Json)
-        Write-Host "STRING RESPONSE:"
+        Write-Host ""
+        Write-Host "FULL RESPONSE:"
         $_ | Format-List * -Force | Out-String
     }
 }
@@ -101,3 +84,20 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
     StatusCode = [HttpStatusCode]::OK
     Body = $Request
 })
+
+# REMOVED FOR DEMO PURPOSES
+# create function to add README.md to repo
+# Write-Host "No branches exist, creating init commit to initialize branch."
+# AddReadMe
+# ConfigureBranchProtection
+
+# function AddReadMe {
+#     $bodyReadMe = "{
+#     `n  `"branch`": `"main`",
+#     `n  `"message`": `"add README`",
+#     `n  `"content`": `"QWRkIHNvbWUgbWVhbmluZ2Z1bCBkZXNjcmlwdGlvbiBwbGVhc2UuIEl0IHdpbGwgaGVscCB5b3UgbGF0ZXIu`"
+#     `n}"
+
+#     $response = Invoke-RestMethod "https://api.github.com/repos/$orgName/$ghRepoName/contents/README.md" -Method 'PUT' -Headers $headers -Body $bodyReadMe
+#     $response | ConvertTo-Json
+# }
